@@ -158,12 +158,19 @@ function renderGal(){
     $("gal").innerHTML=`<div class="gEmpty"><strong>Pronto verás aquí nuestros trabajos</strong>${GAL.admin?"Sube las primeras fotos con el recuadro de arriba.":"Mientras tanto, reserva tu cita y sé de las primeras."}</div>`;return;
   }
   const lab=k=>(GCATS.find(c=>c[0]===k)||[,""])[1];
-  $("gal").innerHTML=`<div class="grid">${list.map(x=>`<figure class="ph">
+  $("gal").innerHTML=`<div class="carousel"><button class="cNav prev" data-cnav="-1" aria-label="Fotos anteriores">‹</button><button class="cNav next" data-cnav="1" aria-label="Más fotos">›</button><div class="grid" id="gRow">${list.map(x=>`<figure class="ph">
     <button class="open" data-view="${x.id}" aria-label="Ver foto ${esc(x.caption||lab(x.cat))}"><img src="${gSrc(x)}" alt="${esc(x.caption||lab(x.cat))}" loading="lazy"></button>
     <figcaption><span>${esc(x.caption||"")}</span><span>${lab(x.cat)}</span></figcaption>
     ${GAL.admin?`<button class="del ${GAL.sure===x.id?"sure":""}" data-del="${x.id}">${GAL.sure===x.id?"¿Borrar? Toca otra vez":"Borrar"}</button>`:""}
-  </figure>`).join("")}</div>`;
+  </figure>`).join("")}</div></div>`;
 }
+// Carrusel: avanza solo hacia la izquierda cada pocos segundos; se detiene mientras la clienta lo toca
+const slide=dir=>{const row=$("gRow");if(!row)return;const step=(row.querySelector(".ph")?.offsetWidth||260)+12;
+  if(dir>0&&row.scrollLeft+row.clientWidth>=row.scrollWidth-4) row.scrollTo({left:0}); else row.scrollBy({left:dir*step})};
+let hold=0;
+["pointerdown","wheel","touchstart","mouseenter","focusin"].forEach(ev=>$("gal").addEventListener(ev,()=>{hold=Date.now()},{passive:true}));
+if(!matchMedia("(prefers-reduced-motion: reduce)").matches)
+  setInterval(()=>{if(!document.hidden&&Date.now()-hold>8000&&!document.querySelector(".lb"))slide(1)},3500);
 function gStatus(t){$("gStatus").hidden=!t;$("gStatus").textContent=t||""}
 async function loadGal(){try{GAL.items=await api("galeria")}catch{} renderGal()}
 loadGal();
@@ -192,6 +199,7 @@ $("gUp").addEventListener("click",async()=>{
 document.addEventListener("click",async e=>{
   const b=e.target.closest("button"); if(!b) return;
   if(b.dataset.gcat){GAL.cat=b.dataset.gcat;renderGal();return}
+  if(b.dataset.cnav){hold=Date.now();slide(+b.dataset.cnav);return}
   if(b.dataset.view){const x=GAL.items.find(i=>i.id===b.dataset.view);const lb=document.createElement("div");lb.className="lb";lb.setAttribute("role","dialog");
     lb.innerHTML=`<img src="${gSrc(x)}" alt="${esc(x.caption||"")}"><p>${esc(x.caption||"")}</p><button>Cerrar</button>`;
     lb.addEventListener("click",()=>lb.remove());document.addEventListener("keydown",function k(ev){if(ev.key==="Escape"){lb.remove();document.removeEventListener("keydown",k)}});
