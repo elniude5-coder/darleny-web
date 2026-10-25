@@ -13,7 +13,8 @@ Web con menú de servicios, reservas en línea, agenda privada y galería de tra
 1. En Netlify: **Add new project → Import an existing project → GitHub** y elige `darleny-web`. No hace falta comando de build; la carpeta de publicación ya está en `netlify.toml`.
 2. En **Project configuration → Environment variables**, agrega `ADMIN_PASSWORD` con la contraseña de Darleny.
 3. Vuelve a publicar (**Deploys → Trigger deploy**) para que tome la contraseña.
-4. Para entrar a la agenda: toca **Acceso** al final de la página, o abre la web con `#acceso` al final.
+4. Cada vez que cambies `ADMIN_PASSWORD`, vuelve a publicar para que el servidor la use.
+5. Para entrar a la agenda: toca **Acceso** al final de la página, o abre la web con `#acceso` al final.
 
 ## Cambiar precios, horario o datos del banco
 
