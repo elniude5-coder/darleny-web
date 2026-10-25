@@ -2,6 +2,8 @@
 
 Web con menú de servicios, reservas en línea, agenda privada y galería de trabajos.
 
+En línea: https://darleny-aesthetic-studio.netlify.app
+
 ## Cómo está armada
 
 - `public/`: la página (`index.html`, `app.mjs`) y los datos del estudio (`datos.mjs`: servicios, precios, duraciones, horario, WhatsApp y datos del banco).
