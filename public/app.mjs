@@ -40,12 +40,17 @@ function dayList(){
 const key = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 let BUSY=[]; // horarios ocupados {date,time,mins}, de la agenda
 const toMin = t => {const [h,m]=t.split(":").map(Number);return h*60+m};
+const hh = n => String(n).padStart(2,"0");
+// Horario semanal y horas bloqueadas; el servidor manda el que Darleny tenga guardado
+let HORARIO={semana:Object.fromEntries([0,1,2,3,4,5,6].map(d=>[d,CONFIG.open[d]?[hh(CONFIG.open[d][0])+":00",hh(CONFIG.open[d][1])+":00"]:null])),bloqueos:[]};
+const blockRange = b => [b.from?toMin(b.from):0, b.to?toMin(b.to):1440];
 function slotsFor(date, mins){
-  const h=CONFIG.open[date.getDay()]; if(!h) return [];
-  const out=[], now=new Date(), need=Math.max(mins,30);
-  for(let m=h[0]*60;m+need<=h[1]*60;m+=30){
+  const h=HORARIO.semana[date.getDay()]; if(!h) return [];
+  const out=[], now=new Date(), need=Math.max(mins,30), dk=key(date);
+  const blocks=HORARIO.bloqueos.filter(b=>b.date===dk).map(blockRange);
+  for(let m=toMin(h[0]);m+need<=toMin(h[1]);m+=30){
     const t=new Date(date); t.setHours(0,m,0,0);
-    const dk=key(date), taken=BUSY.some(b=>b.date===dk && m<toMin(b.time)+(b.mins||60) && toMin(b.time)<m+need);
+    const taken=BUSY.some(b=>b.date===dk && m<toMin(b.time)+(b.mins||60) && toMin(b.time)<m+need) || blocks.some(([f,e])=>m<e&&f<m+need);
     out.push({m, label:`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`, past: t < new Date(now.getTime()+2*3600e3), taken});
   }
   return out;
@@ -57,7 +62,7 @@ function renderPanel(){
   $("picked").innerHTML = items.length ? items.map(s=>`<li><span>${s.name}</span><span class="num">${priceLabel(s)}<button class="rm" data-id="${s.id}" aria-label="Quitar ${s.name}">×</button></span></li>`).join("")
     : `<li class="empty">Agrega servicios desde el menú con el botón +.</li>`;
   const days=dayList();
-  $("days").innerHTML = days.map(d=>{const closed=!CONFIG.open[d.getDay()]||!slotsFor(d,mins).some(s=>!s.past&&!s.taken);
+  $("days").innerHTML = days.map(d=>{const closed=!HORARIO.semana[d.getDay()]||!slotsFor(d,mins).some(s=>!s.past&&!s.taken);
     return `<button class="day" data-day="${key(d)}" aria-pressed="${state.day===key(d)}" ${closed?"disabled":""}>${DAYN[d.getDay()]}<b>${d.getDate()}</b>${MON[d.getMonth()]}</button>`}).join("");
   const day=days.find(d=>key(d)===state.day);
   if(!items.length){$("slots").innerHTML=`<p class="empty" style="grid-column:1/-1">Primero elige un servicio.</p>`}
@@ -106,7 +111,12 @@ document.addEventListener("click",e=>{
 });
 
 renderTabs(); renderMenu(); renderPanel();
-document.querySelectorAll(".hours div")[(new Date().getDay()+6)%7]?.classList.add("today");
+const DIAS=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+function renderHours(){
+  $("hoursList").innerHTML=[1,2,3,4,5,6,0].map(d=>{const h=HORARIO.semana[d];
+    return `<div class="${d===new Date().getDay()?"today":""}"><dt>${DIAS[d]}</dt><dd>${h?`${to12(h[0])} – ${to12(h[1])}`:"Cerrado"}</dd></div>`}).join("");
+}
+renderHours();
 
 // ===== Reserva en línea =====
 const api=async(path,opts={})=>{
@@ -116,7 +126,9 @@ const api=async(path,opts={})=>{
   return data;
 };
 const ADMIN={pass:null};
-async function loadBusy(){try{BUSY=await api("ocupado");renderPanel()}catch{}}
+async function loadBusy(){
+  try{const [b,h]=await Promise.all([api("ocupado"),api("horario")]);BUSY=b;if(h&&h.semana)HORARIO=h;renderHours();renderPanel()}catch{}
+}
 
 async function reservar(btn){
   const name=$("fName").value.trim(), phone=$("fPhone").value.replace(/\D/g,"");
@@ -305,7 +317,7 @@ const store={get(){try{return localStorage.getItem("darleny-pass")}catch{return 
 function setAdmin(on){
   AG.admin=GAL.admin=on;
   $("agenda").hidden=!on;$("heroAgenda").hidden=!on;$("galAdmin").hidden=!on;$("login").hidden=true;
-  renderGal(); if(on){renderAgenda();loadAgenda()}
+  renderGal(); if(on){renderAgenda();loadAgenda();loadHorarioAdmin()}
 }
 function logout(msg){ADMIN.pass=null;store.set(null);setAdmin(false);if(msg){$("login").hidden=false;$("lMsg").hidden=false;$("lMsg").textContent=msg}}
 async function login(pass,quiet){
@@ -319,3 +331,38 @@ $("openLogin").addEventListener("click",()=>{$("login").hidden=false;$("lPass").
 if(location.hash==="#acceso"){$("login").hidden=false}
 {const saved=store.get(); if(saved) login(saved,true)}
 setInterval(()=>{if(AG.admin&&!document.hidden)loadAgenda()},60000);
+
+// ===== Mi horario (Darleny cambia sus horas y bloquea clases) =====
+function hMsg(t){$("hMsg").hidden=!t;$("hMsg").textContent=t||""}
+let HADMIN={semana:null,bloqueos:[]};
+function renderHorarioAdmin(){
+  const sem=HADMIN.semana||HORARIO.semana;
+  $("hrWeek").innerHTML=[1,2,3,4,5,6,0].map(d=>{const h=sem[d];return `<div class="hrRow">
+    <label class="hrDay"><input type="checkbox" id="hrOn${d}" ${h?"checked":""}> ${DIAS[d]}</label>
+    <input type="time" id="hrA${d}" step="1800" value="${h?h[0]:"09:00"}" aria-label="${DIAS[d]} abre" ${h?"":"disabled"}>
+    <span>a</span>
+    <input type="time" id="hrB${d}" step="1800" value="${h?h[1]:"17:00"}" aria-label="${DIAS[d]} cierra" ${h?"":"disabled"}></div>`}).join("");
+  const list=[...HADMIN.bloqueos].sort((a,b)=>(a.date+(a.from||"")).localeCompare(b.date+(b.from||"")));
+  $("bqList").innerHTML=list.length?list.map(b=>`<li><span><strong>${shortDate(b.date)}</strong> · ${b.from?`${to12(b.from)} – ${to12(b.to)}`:"Todo el día"}${b.nota?` · ${esc(b.nota)}`:""}</span><button class="linkBtn" data-bq="${b.id}">Quitar</button></li>`).join("")
+    :`<li class="empty">No tienes horas bloqueadas.</li>`;
+}
+async function loadHorarioAdmin(){try{HADMIN=await api("admin/horario");renderHorarioAdmin()}catch(e){hMsg(e.message)}}
+$("hrWeek").addEventListener("change",e=>{const m=e.target.id.match(/^hrOn(\d)$/);if(m){$("hrA"+m[1]).disabled=$("hrB"+m[1]).disabled=!e.target.checked}});
+$("hrSave").addEventListener("click",async()=>{
+  const semana={};for(const d of [0,1,2,3,4,5,6]) semana[d]=$("hrOn"+d).checked?[$("hrA"+d).value,$("hrB"+d).value]:null;
+  $("hrSave").disabled=true;
+  try{await api("admin/horario",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({semana})});hMsg("Horario guardado. Las clientas ya ven las horas nuevas.");await loadHorarioAdmin();loadBusy()}
+  catch(e){hMsg(e.message)}
+  $("hrSave").disabled=false;
+});
+$("bqAdd").addEventListener("click",async()=>{
+  const body={date:$("bqDate").value,from:$("bqFrom").value,to:$("bqTo").value,nota:$("bqNota").value.trim(),semanas:+$("bqRep").value};
+  if(!body.date){hMsg("Elige la fecha que quieres bloquear.");return}
+  $("bqAdd").disabled=true;
+  try{const r=await api("admin/bloqueos",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+    hMsg(r.bloqueos.length>1?`Bloqueado ${r.bloqueos.length} semanas seguidas.`:"Bloqueado.");["bqFrom","bqTo","bqNota"].forEach(i=>$(i).value="");await loadHorarioAdmin();loadBusy()}
+  catch(e){hMsg(e.message)}
+  $("bqAdd").disabled=false;
+});
+$("bqList").addEventListener("click",async e=>{const b=e.target.closest("[data-bq]");if(!b)return;
+  try{await api("admin/bloqueos/"+b.dataset.bq,{method:"DELETE"});await loadHorarioAdmin();loadBusy()}catch(err){hMsg(err.message)}});

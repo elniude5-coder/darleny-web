@@ -45,6 +45,28 @@ async function updateList(key, fn) {
   return { error: [503, "Hay muchos cambios al mismo tiempo. Vuelve a intentarlo."] };
 }
 
+// Horario semanal y horas bloqueadas (clases, días libres). Darleny lo cambia desde su acceso.
+const pad = (n) => String(n).padStart(2, "0");
+const DEFAULT_SEMANA = Object.fromEntries([0, 1, 2, 3, 4, 5, 6].map((d) => [d, CONFIG.open[d] ? [pad(CONFIG.open[d][0]) + ":00", pad(CONFIG.open[d][1]) + ":00"] : null]));
+async function readHorario() {
+  const r = await datos().getWithMetadata("horario", { type: "json" });
+  return { semana: r?.data?.semana || DEFAULT_SEMANA, bloqueos: r?.data?.bloqueos || [], etag: r?.etag || null };
+}
+async function updateHorario(fn) {
+  for (let i = 0; i < 5; i++) {
+    const { semana, bloqueos, etag } = await readHorario();
+    const out = fn({ semana, bloqueos });
+    if (out.error) return out;
+    const res = await datos().setJSON("horario", { semana: out.semana, bloqueos: out.bloqueos }, etag ? { onlyIfMatch: etag } : { onlyIfNew: true });
+    if (res.modified) return out;
+  }
+  return { error: [503, "Hay muchos cambios al mismo tiempo. Vuelve a intentarlo."] };
+}
+const isTime = (t) => /^([01]\d|2[0-3]):[0-5]\d$/.test(t || "");
+const isDate = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "") && !isNaN(Date.parse(d + "T00:00:00Z"));
+// Un bloqueo sin horas cubre el día entero
+const blockRange = (b) => [b.from ? toMin(b.from) : 0, b.to ? toMin(b.to) : 24 * 60];
+
 function isAdmin(req) {
   const pass = Netlify.env.get("ADMIN_PASSWORD");
   if (!pass) return false;
@@ -54,7 +76,7 @@ function isAdmin(req) {
 }
 
 // Valida servicios, fecha y hora contra el menú y el horario del estudio
-function checkBooking(b, { admin }) {
+function checkBooking(b, { admin, horario }) {
   const services = Array.isArray(b.services) ? [...new Set(b.services.map(String))] : [];
   const items = services.map((id) => SVC[id]).filter(Boolean);
   if (!admin && (!items.length || items.length !== services.length)) return { error: "Elige al menos un servicio del menú." };
@@ -67,9 +89,12 @@ function checkBooking(b, { admin }) {
   const total = admin && b.total != null ? Math.max(0, Math.round(+b.total || 0)) : items.reduce((a, s) => a + s.price, 0);
   const mins = admin && b.mins ? Math.min(600, Math.max(15, Math.round(+b.mins))) : Math.max(30, items.reduce((a, s) => a + s.min, 0));
   if (!admin) {
-    const day = new Date(b.date + "T12:00:00Z").getUTCDay(), h = CONFIG.open[day], m = toMin(b.time), now = nowDR();
+    const day = new Date(b.date + "T12:00:00Z").getUTCDay(), h = horario.semana[day], m = toMin(b.time), now = nowDR();
     if (!h) return { error: "Ese día el estudio está cerrado." };
-    if (m % 30 || m < h[0] * 60 || m + mins > h[1] * 60) return { error: "Esa hora está fuera del horario para estos servicios." };
+    const [o, c] = [toMin(h[0]), toMin(h[1])];
+    if ((m - o) % 30 || m < o || m + mins > c) return { error: "Esa hora está fuera del horario para estos servicios." };
+    if (horario.bloqueos.some((x) => { const [f, t] = blockRange(x); return x.date === b.date && m < t && f < m + mins; }))
+      return { error: "Darleny no está disponible a esa hora. Elige otra, por favor." };
     const startMs = Date.parse(b.date + "T00:00:00Z") + m * 60e3;
     if (startMs < now.ms + 2 * 3600e3) return { error: "Las citas se reservan con al menos 2 horas de anticipación." };
     if (startMs > now.ms + CONFIG.daysAhead * 864e5) return { error: `Solo se puede reservar hasta ${CONFIG.daysAhead} días antes.` };
@@ -94,7 +119,7 @@ export default async (req) => {
       return json(items.filter((x) => ACTIVE.includes(x.status) && x.date >= today).map(({ date, time, mins }) => ({ date, time, mins })));
     }
     if (a === "reservar" && M === "POST") {
-      const r = checkBooking(await readBody(req), { admin: false });
+      const r = checkBooking(await readBody(req), { admin: false, horario: await readHorario() });
       if (r.error) return fail(400, r.error);
       const cita = { id: randomUUID().slice(0, 8), ...r.cita, status: "pendiente", origen: "web", created: new Date().toISOString() };
       const out = await updateList("citas", (items) => {
@@ -109,6 +134,10 @@ export default async (req) => {
       return json({ ok: true, cita });
     }
     if (a === "galeria" && M === "GET") return json((await readList("galeria")).items);
+    if (a === "horario" && M === "GET") {
+      const { semana, bloqueos } = await readHorario(), today = nowDR().date;
+      return json({ semana, bloqueos: bloqueos.filter((x) => x.date >= today).map(({ date, from, to }) => ({ date, from, to })) });
+    }
     if (a === "foto" && b && M === "GET") {
       const r = await fotos().getWithMetadata(b, { type: "arrayBuffer" });
       if (!r) return new Response("No encontrada", { status: 404 });
@@ -124,7 +153,7 @@ export default async (req) => {
       if (b === "citas") {
         if (M === "GET" && !c) return json((await readList("citas")).items);
         if (M === "POST" && !c) {
-          const body = await readBody(req), r = checkBooking(body, { admin: true });
+          const body = await readBody(req), r = checkBooking(body, { admin: true, horario: null });
           if (r.error) return fail(400, r.error);
           const status = STATUSES.includes(body.status) ? body.status : "pendiente";
           const cita = { id: randomUUID().slice(0, 8), ...r.cita, status, origen: "manual", created: new Date().toISOString() };
@@ -142,6 +171,40 @@ export default async (req) => {
         }
         if (M === "DELETE" && c) {
           const out = await updateList("citas", (items) => ({ items: items.filter((x) => x.id !== c) }));
+          return out.error ? fail(...out.error) : json({ ok: true });
+        }
+      }
+
+      if (b === "horario") {
+        if (M === "GET") { const { semana, bloqueos } = await readHorario(); return json({ semana, bloqueos: bloqueos.filter((x) => x.date >= nowDR().date) }); }
+        if (M === "PUT") {
+          const body = await readBody(req), semana = {};
+          for (const d of [0, 1, 2, 3, 4, 5, 6]) {
+            const v = body.semana?.[d];
+            if (v == null) { semana[d] = null; continue; }
+            if (!Array.isArray(v) || !isTime(v[0]) || !isTime(v[1]) || toMin(v[0]) >= toMin(v[1])) return fail(400, "Revisa las horas: la de cierre tiene que ser después de la de apertura.");
+            semana[d] = [v[0], v[1]];
+          }
+          const out = await updateHorario((h) => ({ ...h, semana }));
+          return out.error ? fail(...out.error) : json({ ok: true });
+        }
+      }
+      if (b === "bloqueos") {
+        if (M === "POST" && !c) {
+          const body = await readBody(req), weeks = Math.min(20, Math.max(1, Math.round(+body.semanas || 1)));
+          if (!isDate(body.date)) return fail(400, "Elige la fecha.");
+          const from = body.from || "", to = body.to || "";
+          if ((from || to) && (!isTime(from) || !isTime(to) || toMin(from) >= toMin(to))) return fail(400, "Pon la hora de inicio y la de fin, o deja las dos vacías para bloquear el día entero.");
+          const nota = clean(body.nota, 60), nuevos = [];
+          for (let w = 0; w < weeks; w++) {
+            const date = new Date(Date.parse(body.date + "T12:00:00Z") + w * 7 * 864e5).toISOString().slice(0, 10);
+            nuevos.push({ id: randomUUID().slice(0, 8), date, from, to, nota });
+          }
+          const out = await updateHorario((h) => ({ ...h, bloqueos: [...h.bloqueos.filter((x) => x.date >= nowDR().date), ...nuevos] }));
+          return out.error ? fail(...out.error) : json({ ok: true, bloqueos: nuevos });
+        }
+        if (M === "DELETE" && c) {
+          const out = await updateHorario((h) => ({ ...h, bloqueos: h.bloqueos.filter((x) => x.id !== c) }));
           return out.error ? fail(...out.error) : json({ ok: true });
         }
       }

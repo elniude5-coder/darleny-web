@@ -117,6 +117,15 @@ input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px s
 .linkBtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;font:inherit;cursor:pointer}
 .loginForm{display:flex;gap:10px;align-items:end;flex-wrap:wrap;max-width:420px;margin-top:12px}
 .loginForm label{flex:1 1 200px;margin:0}
+.hrWeek{display:grid;gap:6px;margin-top:8px;max-width:460px}
+.hrRow{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:8px;align-items:center}
+.hrRow input[type=time]{width:auto;margin:0}
+.hrRow input[type=time]:disabled{opacity:.4}
+.hrDay{margin:0;color:var(--ink);font-size:14px;display:flex;gap:8px;align-items:center}
+.hrDay input{width:auto;margin:0}
+.hrTitle{font-family:var(--label);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:22px 0 2px}
+.bqList{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:6px;max-width:560px}
+.bqList li{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-bottom:1px solid var(--line);padding:6px 0}
 footer{color:var(--muted);font-size:13px;padding-block:24px 40px;border-top:1px solid var(--line)}
 
 .agenda{padding-block:28px;border-bottom:1px solid var(--line)}
@@ -241,6 +250,24 @@ input[type=file]{padding:7px}
     <button class="gBtn" id="aSave" style="margin-top:8px">Guardar cita</button>
     <p class="gStatus" id="aMsg" hidden></p>
   </details>
+  <details class="agAdd" id="hrBox">
+    <summary>Mi horario</summary>
+    <p class="rule">Marca los días que trabajas y tus horas. Las clientas solo pueden reservar dentro de este horario.</p>
+    <div id="hrWeek" class="hrWeek"></div>
+    <button class="gBtn" id="hrSave" style="margin-top:10px">Guardar horario</button>
+    <h4 class="hrTitle">Bloquear horas o días</h4>
+    <p class="rule">Para tus clases o un día libre. Deja las horas vacías para bloquear el día entero.</p>
+    <div class="agForm">
+      <label for="bqDate">Fecha<input id="bqDate" type="date"></label>
+      <label for="bqFrom">Desde<input id="bqFrom" type="time" step="1800"></label>
+      <label for="bqTo">Hasta<input id="bqTo" type="time" step="1800"></label>
+      <label for="bqRep">Repetir<select id="bqRep"><option value="1">Solo ese día</option><option value="4">4 semanas</option><option value="8">8 semanas</option><option value="16">16 semanas (un cuatrimestre)</option></select></label>
+      <label for="bqNota">Nota (solo la ves tú)<input id="bqNota" maxlength="60" placeholder="Ej. Clase de anatomía"></label>
+    </div>
+    <button class="gBtn" id="bqAdd" style="margin-top:8px">Bloquear</button>
+    <ul class="bqList" id="bqList"></ul>
+    <p class="gStatus" id="hMsg" hidden></p>
+  </details>
 </section>
 
 <main class="wrap layout" id="reservar">
@@ -307,15 +334,7 @@ input[type=file]{padding:7px}
 
 <section class="policy wrap" id="horario">
   <h2>Horario</h2>
-  <dl class="hours num">
-    <div><dt>Lunes</dt><dd>10:00 a. m. – 1:00 p. m.</dd></div>
-    <div><dt>Martes</dt><dd>10:00 a. m. – 5:00 p. m.</dd></div>
-    <div><dt>Miércoles</dt><dd>10:00 a. m. – 5:00 p. m.</dd></div>
-    <div><dt>Jueves</dt><dd>10:00 a. m. – 5:00 p. m.</dd></div>
-    <div><dt>Viernes</dt><dd>10:00 a. m. – 6:00 p. m.</dd></div>
-    <div><dt>Sábado</dt><dd>9:00 a. m. – 6:00 p. m.</dd></div>
-    <div><dt>Domingo</dt><dd>9:00 a. m. – 1:00 p. m.</dd></div>
-  </dl>
+  <dl class="hours num" id="hoursList"></dl>
 </section>
 
 <section class="policy wrap" id="politica">
