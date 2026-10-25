@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Darleny Aesthetic Studio</title>
+<meta name="description" content="Darleny Aesthetic Studio: cejas, pestañas, micropigmentación y depilación. Reserva tu cita en línea.">
+<meta property="og:title" content="Darleny Aesthetic Studio">
+<meta property="og:description" content="Cejas · Pestañas · Micropigmentación · Depilación. Reserva tu cita.">
+<meta property="og:image" content="/logo.jpg">
+<link rel="icon" href="/logo.jpg">
+<style>body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Josefin+Sans:wght@400;600&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: single column menu on the left, sticky "tu cita" panel on the right (stacks on phone, with a bottom bar) */
+:root{
+  /* Cream plaque page, gold leaf accents, a soft blush wash; the logo sits on its own black band */
+  --bg:#f8f1e6; --surface:#fffaf3; --ink:#2b2017; --muted:#7f6c58; --line:#eadcc6;
+  --accent:#9c7428; --accent-ink:#fffaf3; --accent-soft:#f7e6df; --gold:#c9a24e; --ok:#2f7350; --warn:#a2600c;
+  --display:"Cormorant Garamond", "Didot", Georgia, serif;
+  --label:"Josefin Sans", "Futura", system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+header.hero{--ink:#f4ead7;--muted:#c9b797;--accent:#d6ae5c;--accent-ink:#1a1209;color:var(--ink);background:#000;box-shadow:0 0 0 100vmax #000;clip-path:inset(0 -100vmax);padding-block:28px 36px;display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:32px;align-items:center}
+@media (max-width:760px){header.hero{grid-template-columns:minmax(0,1fr);text-align:center;justify-items:center}}
+.logo{width:100%;max-width:420px;height:auto;display:block}
+.brand{font-family:var(--display);font-weight:500;font-size:clamp(30px,5vw,46px);line-height:1.1;margin:0;text-wrap:balance}
+.cats{margin:12px 0 0;color:var(--accent);letter-spacing:.22em;text-transform:uppercase;font-size:12px;font-family:var(--label)}
+.lead{max-width:52ch;color:var(--muted);margin:14px 0 0;font-size:16px}
+.heroCtas{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+@media (max-width:760px){.heroCtas{justify-content:center}}
+.pill{display:inline-block;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:9px 18px;text-decoration:none;font-family:var(--label);letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+.pill.solid{background:var(--accent);color:var(--accent-ink)}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:40px;padding-block:28px 120px;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.tab{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;font-size:13px}
+.tab[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+section.cat{margin-bottom:40px}
+.cat h2{font-family:var(--display);font-weight:500;font-size:34px;color:var(--ink);margin:0;text-wrap:balance}
+.cat h2::after{content:"";display:block;width:56px;height:1px;background:var(--gold);margin-top:8px}
+.cat .intro{color:var(--muted);margin:6px 0 0;max-width:62ch}
+.cat h3{font-family:var(--label);font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);margin:24px 0 4px;font-weight:600}
+.svc{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.svc .n{font-weight:500}
+.svc .d{color:var(--muted);font-size:13px}
+.svc .p{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.svc .p small{display:block;color:var(--muted);font-size:11px}
+.add{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;width:34px;height:34px;font-size:18px;line-height:1;display:grid;place-items:center}
+.add[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.add:disabled{opacity:.35;cursor:not-allowed}
+.note{font-size:13px;color:var(--muted);background:var(--accent-soft);padding:12px 14px;border-radius:10px;margin-top:14px}
+.note ul{margin:6px 0 0;padding-left:18px}
+
+aside.panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);background:var(--surface);border:1px solid #e3cf9f;box-shadow:0 10px 30px -18px rgba(120,80,30,.35);border-radius:16px;padding:20px}
+@media (max-width:900px){aside.panel{position:static}}
+.panel h2{font-family:var(--display);font-weight:500;font-size:30px;margin:0 0 4px}
+.step{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.step h4{margin:0 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.picked{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.picked li{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.picked li span:first-child{min-width:0}
+.rm{border:0;background:none;color:var(--muted);padding:0 0 0 6px}
+.empty{color:var(--muted);font-size:14px;margin:0}
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.day{flex:0 0 auto;border:1px solid var(--line);background:transparent;border-radius:10px;padding:6px 8px;text-align:center;min-width:52px;font-size:12px}
+.day b{display:block;font-size:17px;font-weight:600}
+.day[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.day:disabled{opacity:.35;cursor:not-allowed}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.slot{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 0;font-size:13px;font-variant-numeric:tabular-nums}
+.slot[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.slot:disabled{opacity:.3;text-decoration:line-through;cursor:not-allowed}
+label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-top:4px}
+.totals{display:grid;gap:4px;font-size:14px}
+.totals div{display:flex;justify-content:space-between}
+.totals .dep{font-weight:600;font-size:16px;color:var(--accent)}
+.rule{font-size:12px;color:var(--muted);margin:6px 0 0}
+.cta{width:100%;margin-top:14px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:13px;font-weight:600;font-size:15px}
+.cta:disabled{opacity:.45;cursor:not-allowed}
+.err{color:var(--warn);font-size:13px;margin:8px 0 0}
+
+.confirm{border:1px solid var(--ok);border-radius:12px;padding:14px;margin-top:14px}
+.confirm h4{color:var(--ok);margin:0 0 6px;font-size:14px}
+.confirm pre{white-space:pre-wrap;font:13px/1.45 var(--body);background:var(--bg);border-radius:8px;padding:10px;margin:8px 0;max-height:240px;overflow:auto}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn2{flex:1 1 140px;text-align:center;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:10px;padding:10px;font-weight:600;text-decoration:none;font-size:14px}
+
+.policy{border-top:1px solid var(--line);padding-block:36px}
+.policy h2{font-family:var(--display);font-weight:500;font-size:34px;margin:0 0 14px}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:18px}
+.tier{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface)}
+.tier .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.tier .v{font-family:var(--display);font-size:24px;margin-top:4px}
+.policy ul{max-width:70ch;padding-left:18px;margin:0;display:grid;gap:6px}
+.hours{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 32px;margin:0;max-width:760px}
+.hours div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.hours dt{font-weight:600}.hours dd{margin:0;color:var(--muted)}
+.hours div.today dt,.hours div.today dd{color:var(--accent)}
+.wax{font-size:13px;background:var(--accent-soft);border-left:3px solid var(--warn);border-radius:8px;padding:10px 12px;margin:10px 0 0}
+.linkBtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;font:inherit;cursor:pointer}
+.loginForm{display:flex;gap:10px;align-items:end;flex-wrap:wrap;max-width:420px;margin-top:12px}
+.loginForm label{flex:1 1 200px;margin:0}
+footer{color:var(--muted);font-size:13px;padding-block:24px 40px;border-top:1px solid var(--line)}
+
+.agenda{padding-block:28px;border-bottom:1px solid var(--line)}
+.agHead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.agHead h2{font-family:var(--display);font-weight:500;font-size:34px;margin:0}
+.agHead p{margin:0;color:var(--muted);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.stat .t{font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.stat .v{font-family:var(--body);font-weight:600;font-variant-numeric:lining-nums tabular-nums;font-size:28px;line-height:1.15;margin-top:4px}
+.stat .s{font-size:12px;color:var(--muted)}
+.agDay{font-family:var(--label);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:18px 0 6px}
+.cita{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:14px;align-items:start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:8px}
+@media (max-width:640px){.cita{grid-template-columns:minmax(0,1fr)}}
+.cita .h{font-variant-numeric:tabular-nums;font-weight:600}
+.cita .h .dd{display:block;color:var(--accent);font-family:var(--label);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:400}
+.cita .h small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.cita .who{font-weight:600}
+.cita .ph2{color:var(--muted);font-size:13px;user-select:all}
+.cita .sv{font-size:13px;margin-top:4px}
+.cita .money{font-size:13px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+@media (max-width:640px){.acts{justify-content:flex-start}}
+.acts button,.acts a{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 11px;font-size:12px;color:var(--ink);text-decoration:none}
+.acts .pri{border-color:var(--accent);color:var(--accent)}
+.acts .sure{background:var(--warn);color:var(--accent-ink);border-color:var(--warn)}
+.chip{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:6px;vertical-align:1px}
+.chip.pendiente{background:#f8e8c6;color:var(--warn)}
+.chip.confirmada{background:#dcefe2;color:var(--ok)}
+.chip.completada{background:var(--accent-soft);color:var(--accent)}
+.chip.cancelada,.chip.no_asistio{background:#f6dede;color:#9b3b3b}
+.agEmpty{color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center}
+.agAdd{margin-top:18px;border:1px dashed var(--accent);border-radius:14px;padding:12px 16px;background:var(--accent-soft)}
+.agAdd summary{cursor:pointer;font-family:var(--label);letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--accent)}
+.agForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px 12px;margin-top:8px}
+textarea{width:100%;font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-top:4px}
+
+.gallery{border-top:1px solid var(--line);padding-block:36px}
+.gallery h2{font-family:var(--display);font-weight:500;font-size:34px;margin:0}
+.gallery .intro{color:var(--muted);margin:6px 0 18px;max-width:60ch}
+.gAdmin{border:1px dashed var(--accent);border-radius:14px;padding:16px;margin-bottom:20px;background:var(--accent-soft)}
+.gAdmin h3{margin:0 0 4px;font-family:var(--label);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.gAdmin p{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.gForm{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.4fr) auto;gap:10px;align-items:end}
+@media (max-width:760px){.gForm{grid-template-columns:minmax(0,1fr)}}
+.gForm label{margin:0}
+select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-top:4px}
+input[type=file]{padding:7px}
+.gBtn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:10px 16px;font-weight:600;white-space:nowrap}
+.gBtn:disabled{opacity:.45;cursor:not-allowed}
+.gStatus{font-size:13px;margin:10px 0 0;color:var(--muted)}
+.grid{columns:3 220px;column-gap:12px}
+.ph{break-inside:avoid;margin:0 0 12px;position:relative;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.ph button.open{display:block;width:100%;padding:0;border:0;background:none}
+.ph img{display:block;width:100%;height:auto}
+.ph figcaption{padding:8px 10px;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.ph figcaption span:last-child{color:var(--accent);font-family:var(--label);font-size:11px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.del{position:absolute;top:8px;right:8px;background:rgba(255,250,243,.92);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px}
+.del.sure{background:var(--warn);color:var(--accent-ink);border-color:var(--warn)}
+.gEmpty{border:1px solid var(--line);border-radius:14px;padding:32px 20px;text-align:center;color:var(--muted)}
+.gEmpty strong{display:block;font-family:var(--display);font-size:24px;color:var(--ink);font-weight:500;margin-bottom:4px}
+.lb{position:fixed;inset:0;z-index:20;background:rgba(8,6,4,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb img{max-width:100%;max-height:82vh;border-radius:10px}
+.lb p{margin:0;color:#f4ead7}
+.lb button{background:none;border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:6px 16px}
+
+.bar{display:none}
+@media (max-width:900px){
+  .bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);color:var(--ink);border-top:1px solid var(--accent);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+  .bar[hidden]{display:none!important}
+  .bar button{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:9px 14px;font-weight:600}
+}
+@media (prefers-reduced-motion:no-preference){.add,.slot,.day,.tab{transition:background .15s,color .15s}}
+</style>
+
+<header class="hero wrap">
+  <img class="logo" src="logo.jpg" alt="Darleny Aesthetic Studio" width="800" height="705">
+  <div>
+    <h1 class="brand">Darleny Aesthetic Studio</h1>
+    <p class="cats">Cejas · Pestañas · Micropigmentación · Depilación</p>
+    <p class="lead">Servicios de belleza personalizados para realzar tus facciones y resaltar tu mirada. Elige tus servicios, escoge día y hora, y confirma tu cita con el depósito.</p>
+    <div class="heroCtas"><a class="pill solid" href="#reservar">Reservar cita</a><a class="pill" href="#trabajos">Ver trabajos</a><a class="pill" href="#agenda" id="heroAgenda" hidden>Mi agenda</a></div>
+  </div>
+</header>
+
+<section class="agenda wrap" id="login" hidden>
+  <div class="agHead"><h2>Acceso para Darleny</h2><p>Entra para ver tu agenda y subir fotos.</p></div>
+  <form id="lForm" class="loginForm">
+    <label for="lPass">Contraseña<input id="lPass" type="password" autocomplete="current-password"></label>
+    <button class="gBtn" type="submit">Entrar</button>
+  </form>
+  <p class="gStatus" id="lMsg" hidden></p>
+</section>
+
+<section class="agenda wrap" id="agenda" hidden>
+  <div class="agHead"><h2>Mi agenda</h2><p>Solo tú ves esta sección. Las clientas no la ven. <button class="linkBtn" id="logout">Salir</button></p></div>
+  <div class="stats" id="agStats"></div>
+  <nav class="tabs" id="agTabs" aria-label="Filtrar citas"></nav>
+  <div id="agList"></div>
+  <details class="agAdd" id="agAdd">
+    <summary>Agregar cita</summary>
+    <label for="aPaste">Pega aquí el mensaje de WhatsApp de la clienta y toca "Leer mensaje", o llena los datos a mano</label>
+    <textarea id="aPaste" rows="4" placeholder="Hola Darleny Aesthetic Studio, quiero reservar una cita: …"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn2" id="aParse" style="flex:0 1 auto">Leer mensaje</button></div>
+    <div class="agForm">
+      <label for="aName">Nombre<input id="aName"></label>
+      <label for="aPhone">WhatsApp<input id="aPhone" type="tel"></label>
+      <label for="aDate">Fecha<input id="aDate" type="date"></label>
+      <label for="aTime">Hora<input id="aTime" type="time" step="900"></label>
+      <label for="aSvc">Servicios<input id="aSvc"></label>
+      <label for="aTotal">Total RD$<input id="aTotal" type="number" min="0" step="50"></label>
+      <label for="aMins">Duración (min)<input id="aMins" type="number" min="15" step="15" value="60"></label>
+      <label for="aStatus">Estado<select id="aStatus"><option value="pendiente">Esperando depósito</option><option value="confirmada">Depósito recibido</option></select></label>
+    </div>
+    <p class="rule" id="aDep"></p>
+    <button class="gBtn" id="aSave" style="margin-top:8px">Guardar cita</button>
+    <p class="gStatus" id="aMsg" hidden></p>
+  </details>
+</section>
+
+<main class="wrap layout" id="reservar">
+  <div>
+    <nav class="tabs" id="tabs" aria-label="Categorías"></nav>
+    <div id="menu"></div>
+  </div>
+
+  <aside class="panel" id="panel" aria-label="Tu cita">
+    <h2>Tu cita</h2>
+    <div class="step">
+      <h4>1 · Servicios</h4>
+      <ul class="picked" id="picked"></ul>
+      <p class="wax" id="waxWarn" hidden>⚠ <strong>Importante:</strong> No se realizará depilación con cera si estás utilizando ácidos, retinol u otros productos que sensibilicen la piel, ya que pueden causar quemaduras o desprendimiento de la piel. ¡Infórmalo antes de tu cita!</p>
+    </div>
+    <div class="step">
+      <h4>2 · Día</h4>
+      <div class="days" id="days"></div>
+    </div>
+    <div class="step">
+      <h4>3 · Hora</h4>
+      <div class="slots" id="slots"></div>
+      <p class="rule" id="durNote"></p>
+    </div>
+    <div class="step">
+      <h4>4 · Tus datos</h4>
+      <label for="fName">Nombre</label>
+      <input id="fName" autocomplete="name" placeholder="Ej. María Pérez">
+      <label for="fPhone">WhatsApp</label>
+      <input id="fPhone" type="tel" autocomplete="tel" placeholder="809-000-0000">
+    </div>
+    <div class="step">
+      <h4>Pago</h4>
+      <div class="totals num">
+        <div><span>Total estimado</span><span id="tTotal">RD$0</span></div>
+        <div class="dep"><span id="tDepLabel">Depósito para confirmar</span><span id="tDep">RD$0</span></div>
+        <div><span>Restante el día de la cita</span><span id="tRest">RD$0</span></div>
+      </div>
+      <p class="rule" id="tRule"></p>
+    </div>
+    <button class="cta" id="go" disabled>Solicitar cita</button>
+    <p class="err" id="err" hidden></p>
+    <div id="confirm"></div>
+  </aside>
+</main>
+
+<section class="gallery wrap" id="trabajos">
+  <h2>Trabajos realizados</h2>
+  <p class="intro">Resultados reales de cejas, pestañas, micropigmentación y depilación hechos en el estudio.</p>
+  <div class="gAdmin" id="galAdmin" hidden>
+    <h3>Subir fotos</h3>
+    <p>Solo tú ves este recuadro. Las fotos se reducen antes de subirse y aparecen en la galería para todas las clientas.</p>
+    <div class="gForm">
+      <label for="gFiles">Fotos<input id="gFiles" type="file" accept="image/*" multiple></label>
+      <label for="gCat">Servicio<select id="gCat"></select></label>
+      <label for="gCap">Descripción (opcional)<input id="gCap" maxlength="80" placeholder="Ej. Volumen hawaiano 2D"></label>
+      <button class="gBtn" id="gUp" disabled>Subir</button>
+    </div>
+    <p class="gStatus" id="gStatus" hidden></p>
+  </div>
+  <nav class="tabs" id="gTabs" aria-label="Filtrar trabajos"></nav>
+  <div id="gal"></div>
+</section>
+
+<section class="policy wrap" id="horario">
+  <h2>Horario</h2>
+  <dl class="hours num">
+    <div><dt>Lunes</dt><dd>10:00 a. m. – 1:00 p. m.</dd></div>
+    <div><dt>Martes</dt><dd>10:00 a. m. – 5:00 p. m.</dd></div>
+    <div><dt>Miércoles</dt><dd>10:00 a. m. – 5:00 p. m.</dd></div>
+    <div><dt>Jueves</dt><dd>10:00 a. m. – 5:00 p. m.</dd></div>
+    <div><dt>Viernes</dt><dd>10:00 a. m. – 6:00 p. m.</dd></div>
+    <div><dt>Sábado</dt><dd>9:00 a. m. – 6:00 p. m.</dd></div>
+    <div><dt>Domingo</dt><dd>9:00 a. m. – 1:00 p. m.</dd></div>
+  </dl>
+</section>
+
+<section class="policy wrap" id="politica">
+  <h2>Política de reservas y cancelaciones</h2>
+  <div class="tiers">
+    <div class="tier"><div class="t">Servicios de más de RD$1,000</div><div class="v">Depósito RD$1,000</div></div>
+    <div class="tier"><div class="t">Servicios de RD$501 a RD$1,000</div><div class="v">Depósito RD$500</div></div>
+    <div class="tier"><div class="t">Servicios de RD$500 o menos</div><div class="v">Pago completo</div></div>
+  </div>
+  <ul>
+    <li>El depósito se descuenta del precio total del servicio y el restante se paga el día de la cita.</li>
+    <li>La cita queda confirmada una vez recibido el depósito o pago correspondiente.</li>
+    <li>Los depósitos no son reembolsables en caso de inasistencia o cancelación fuera del plazo establecido.</li>
+    <li>Para solicitar un cambio de fecha, debes avisar con al menos 24 horas de anticipación.</li>
+    <li>Si no asistes a tu cita sin previo aviso, perderás el depósito y deberás realizar una nueva reserva para agendar otra fecha.</li>
+    <li>Si necesito cancelar o reprogramar tu cita por motivos atribuibles a mí, podrás coordinar una nueva fecha o solicitar la devolución del depósito.</li>
+    <li><strong>Puntualidad:</strong> se otorgan 10 minutos de tolerancia. Pasado este tiempo, la cita podrá cancelarse y deberá reprogramarse según disponibilidad. 🤎</li>
+  </ul>
+  <p class="rule" style="margin-top:14px">Gracias por tu comprensión y por respetar el tiempo reservado especialmente para ti.</p>
+</section>
+
+<footer class="wrap">Tu belleza merece atención personalizada y un servicio realizado con dedicación. · Darleny Aesthetic Studio · <button class="linkBtn" id="openLogin">Acceso</button> · WhatsApp <a href="https://wa.me/18293433772" target="_blank" rel="noopener" style="color:var(--accent)">829-343-3772</a></footer>
+
+<div class="bar" id="bar" hidden><span id="barTxt"></span><button id="barBtn">Ver mi cita</button></div>
+
+<script type="module" src="/app.mjs"></script>
+</body>
+</html>
