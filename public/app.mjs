@@ -1,4 +1,4 @@
-import { CONFIG, MENU, SVC, deposit } from "./datos.mjs";
+import { CONFIG, MENU, SVC, deposit, bankText } from "./datos.mjs";
 const money = n => "RD$" + n.toLocaleString("en-US");
 const priceLabel = s => s.price==null ? "Sujeto a valoración" : (s.from?"Desde ":"") + money(s.price) + (s.max? "–"+money(s.max).replace("RD$",""):"");
 
@@ -142,7 +142,7 @@ async function reservar(btn){
     const wa=`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
     $("confirm").innerHTML=`<div class="confirm"><h4>¡Tu cita está apartada!</h4>
       <p style="margin:0;font-size:14px">Queda confirmada cuando Darleny reciba ${dep.amt===total?"el pago completo":"el depósito"} de <strong>${money(dep.amt)}</strong>. Haz la transferencia y envía el comprobante por WhatsApp con este mensaje.</p>
-      <p class="rule">Datos para el depósito: ${esc(CONFIG.bank)}</p>
+      <div class="payMini">${payCards()}</div>
       <pre id="msg">${esc(msg)}</pre>
       <div class="row" style="margin-top:8px"><a class="btn2" href="${wa}" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a><button class="btn2" id="copy">Copiar mensaje</button></div></div>`;
     state.sel=[];state.day=null;state.time=null;$("fName").value="";$("fPhone").value="";
@@ -251,7 +251,7 @@ function renderAgenda(){
     if(x.date!==last){html+=`<div class="agDay">${longDate(x.date)}${x.date===t?" · hoy":""}</div>`;last=x.date}
     const sure=AG.sure===x.id, first=(x.name||"").split(" ")[0];
     const cuando=`el ${longDate(x.date)} a las ${to12(x.time)}`;
-    const wa=x.status==="pendiente"?waLink(x.phone,`Hola ${first}, recibí tu solicitud de cita en Darleny Aesthetic Studio para ${cuando} (${x.servicesText}). Para confirmarla, envía ${(+x.deposit||0)>=(+x.total||0)?"el pago":"el depósito"} de ${money(+x.deposit||0)} a: ${CONFIG.bank}, y mándame el comprobante por aquí.`)
+    const wa=x.status==="pendiente"?waLink(x.phone,`Hola ${first}, recibí tu solicitud de cita en Darleny Aesthetic Studio para ${cuando} (${x.servicesText}). Para confirmarla, envía ${(+x.deposit||0)>=(+x.total||0)?"el pago":"el depósito"} de ${money(+x.deposit||0)} a una de estas cuentas y mándame el comprobante por aquí:\n\n${bankText()}`)
       :x.status==="confirmada"?waLink(x.phone,`Hola ${first}, recibí tu ${(+x.deposit||0)>=(+x.total||0)?"pago":"depósito"} de ${money(+x.deposit||0)}. Tu cita en Darleny Aesthetic Studio queda confirmada para ${cuando}. Restante a pagar ese día: ${money((+x.total||0)-(+x.deposit||0))}. Recuerda que para cambiar la fecha debes avisar con 24 horas de anticipación.`)
       :waLink(x.phone);
     const waLabel=x.status==="pendiente"?"Pedir depósito":x.status==="confirmada"?"Enviar confirmación":"WhatsApp";
@@ -366,3 +366,20 @@ $("bqAdd").addEventListener("click",async()=>{
 });
 $("bqList").addEventListener("click",async e=>{const b=e.target.closest("[data-bq]");if(!b)return;
   try{await api("admin/bloqueos/"+b.dataset.bq,{method:"DELETE"});await loadHorarioAdmin();loadBusy()}catch(err){hMsg(err.message)}});
+
+// ===== Pagos y depósitos =====
+const fmtCuenta=c=>c.replace(/(\d{3})(?=\d)/g,"$1 ");
+function payCards(){
+  return CONFIG.bancos.map(b=>`<div class="bank"><div><div class="bankName">${esc(b.banco)}</div><div class="bankType">Cuenta ${esc(b.tipo.toLowerCase())}</div>
+    <div class="bankNum num">${fmtCuenta(b.cuenta)}</div></div><button class="copyBtn" data-copy="${b.cuenta}">Copiar</button></div>`).join("")+
+    `<div class="bank holder"><div><div class="bankType">Titular</div><div class="bankName">${esc(CONFIG.titular.nombre)}</div>
+    <div class="bankType num">Cédula ${CONFIG.titular.cedula}</div></div><button class="copyBtn" data-copy="${CONFIG.titular.cedula}">Copiar cédula</button></div>`;
+}
+$("payCards").innerHTML=payCards();
+$("payWa").href=`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Darleny, te envío el comprobante de mi depósito.")}`;
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-copy]"); if(!b) return;
+  const v=b.dataset.copy, done=()=>{const t=b.textContent;b.textContent="Copiado ✓";setTimeout(()=>b.textContent=t,1800)};
+  if(navigator.clipboard?.writeText) navigator.clipboard.writeText(v).then(done).catch(()=>prompt("Copia este número:",v));
+  else prompt("Copia este número:",v);
+});

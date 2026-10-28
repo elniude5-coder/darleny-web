@@ -4,10 +4,19 @@ export const CONFIG = {
   whatsapp: "18293433772",      // 829-343-3772, en formato internacional sin "+"
   open: { 0:[9,13], 1:[10,13], 2:[10,17], 3:[10,17], 4:[10,17], 5:[10,18], 6:[9,18] }, // 0=domingo … 6=sábado
   daysAhead: 21,
-  bank: "Banco / cuenta a confirmar"
+  bancos: [
+    { banco: "Banco Popular", tipo: "Corriente", cuenta: "827571472" },
+    { banco: "Banreservas", tipo: "Ahorro", cuenta: "9604558148" },
+    { banco: "BHD", tipo: "Ahorro", cuenta: "33485800017" },
+  ],
+  titular: { nombre: "Darleny Alondra González Meléndez", cedula: "40219724396" }
 };
 
 // [id, nombre, detalle, precio, precioMax, "desde", minutos]
+// Texto de las cuentas para mensajes de WhatsApp
+export const bankText = () => CONFIG.bancos.map(b => `${b.banco} (${b.tipo}): ${b.cuenta}`).join("\n") +
+  `\nTitular: ${CONFIG.titular.nombre} · Cédula ${CONFIG.titular.cedula}\nSi pagas desde otro banco, elige "Pago al Instante".`;
+
 export const MENU = [
  {id:"cejas", t:"Diseño y cuidado de cejas", intro:"Diseño, definición y color para realzar tu mirada.", groups:[
   ["Diseño y depilación",[

@@ -6,7 +6,7 @@ En línea: https://darleny-aesthetic-studio.netlify.app
 
 ## Cómo está armada
 
-- `public/`: la página (`index.html`, `app.mjs`) y los datos del estudio (`datos.mjs`: servicios, precios, duraciones, horario, WhatsApp y datos del banco).
+- `public/`: la página (`index.html`, `app.mjs`) y los datos del estudio (`datos.mjs`: servicios, precios, duraciones, horario, WhatsApp y cuentas para depósitos).
 - `netlify/functions/api.mjs`: el servidor. Guarda las citas y las fotos en Netlify Blobs.
 - La agenda y la subida de fotos piden la contraseña que pongas en `ADMIN_PASSWORD`.
 

@@ -20,7 +20,7 @@
 :root{
   /* Cream plaque page, gold leaf accents, a soft blush wash; the logo sits on its own black band */
   --bg:#f8f1e6; --surface:#fffaf3; --ink:#2b2017; --muted:#7f6c58; --line:#eadcc6;
-  --accent:#9c7428; --accent-ink:#fffaf3; --accent-soft:#f7e6df; --gold:#c9a24e; --ok:#2f7350; --warn:#a2600c;
+  --accent:#9c7428; --accent-ink:#fffaf3; --accent-soft:#aaad7c; --olive-ink:#2b2a17; --gold:#c9a24e; --ok:#2f7350; --warn:#a2600c;
   --display:"Cormorant Garamond", "Didot", Georgia, serif;
   --label:"Josefin Sans", "Futura", system-ui, sans-serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -64,7 +64,8 @@ section.cat{margin-bottom:40px}
 .add{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;width:34px;height:34px;font-size:18px;line-height:1;display:grid;place-items:center}
 .add[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .add:disabled{opacity:.35;cursor:not-allowed}
-.note{font-size:13px;color:var(--muted);background:var(--accent-soft);padding:12px 14px;border-radius:10px;margin-top:14px}
+.note,.wax,.agAdd,.gAdmin{--muted:#3d3a22;--accent:#3f3d16;--line:#c9caa4;color:var(--olive-ink)}
+.note{font-size:13px;background:var(--accent-soft);padding:12px 14px;border-radius:10px;margin-top:14px}
 .note ul{margin:6px 0 0;padding-left:18px}
 
 aside.panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);background:var(--surface);border:1px solid #e3cf9f;box-shadow:0 10px 30px -18px rgba(120,80,30,.35);border-radius:16px;padding:20px}
@@ -126,6 +127,18 @@ input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px s
 .hrTitle{font-family:var(--label);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:22px 0 2px}
 .bqList{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:6px;max-width:560px}
 .bqList li{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-bottom:1px solid var(--line);padding:6px 0}
+.payIntro{max-width:62ch;color:var(--muted);margin:0 0 16px}
+.payGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;max-width:980px}
+.bank{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.bank.holder{background:#eeefe2;border-color:#d3d4b4}
+.bankName{font-weight:600}
+.bankType{font-size:12px;color:var(--muted)}
+.bankNum{font-size:20px;letter-spacing:.04em;margin-top:2px;user-select:all}
+.copyBtn{flex:0 0 auto;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
+.payNotes{max-width:70ch;padding-left:18px;margin:18px 0;display:grid;gap:6px;font-size:14px}
+.payMini{display:grid;gap:8px;margin:10px 0}
+.payMini .bank{padding:10px 12px}
+.payMini .bankNum{font-size:16px}
 footer{color:var(--muted);font-size:13px;padding-block:24px 40px;border-top:1px solid var(--line)}
 
 .agenda{padding-block:28px;border-bottom:1px solid var(--line)}
@@ -155,7 +168,7 @@ footer{color:var(--muted);font-size:13px;padding-block:24px 40px;border-top:1px 
 .chip{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:6px;vertical-align:1px}
 .chip.pendiente{background:#f8e8c6;color:var(--warn)}
 .chip.confirmada{background:#dcefe2;color:var(--ok)}
-.chip.completada{background:var(--accent-soft);color:var(--accent)}
+.chip.completada{background:#e4e5cf;color:#4d4f22}
 .chip.cancelada,.chip.no_asistio{background:#f6dede;color:#9b3b3b}
 .agEmpty{color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center}
 .agAdd{margin-top:18px;border:1px dashed var(--accent);border-radius:14px;padding:12px 16px;background:var(--accent-soft)}
@@ -307,6 +320,7 @@ input[type=file]{padding:7px}
         <div><span>Restante el día de la cita</span><span id="tRest">RD$0</span></div>
       </div>
       <p class="rule" id="tRule"></p>
+      <p class="rule"><a href="#pagos" style="color:var(--accent)">Ver cuentas para el depósito</a></p>
     </div>
     <button class="cta" id="go" disabled>Solicitar cita</button>
     <p class="err" id="err" hidden></p>
@@ -335,6 +349,18 @@ input[type=file]{padding:7px}
 <section class="policy wrap" id="horario">
   <h2>Horario</h2>
   <dl class="hours num" id="hoursList"></dl>
+</section>
+
+<section class="policy wrap" id="pagos">
+  <h2>Pagos y depósitos</h2>
+  <p class="payIntro">Haz tu depósito o transferencia a cualquiera de estas cuentas y envía el comprobante por WhatsApp para confirmar tu cita.</p>
+  <div class="payGrid" id="payCards"></div>
+  <ul class="payNotes">
+    <li><strong>Importante:</strong> una vez realizado tu depósito o transferencia, envíame el comprobante para confirmar tu reserva.</li>
+    <li><strong>Desde otro banco:</strong> si pagas desde una entidad bancaria diferente, elige la opción <em>Pago al Instante</em> para agilizar la transferencia.</li>
+  </ul>
+  <a class="pill solid" id="payWa" href="https://wa.me/18293433772" target="_blank" rel="noopener">Enviar comprobante · 829-343-3772</a>
+  <p class="rule" style="margin-top:14px">Gracias por elegir Darleny Aesthetic. 🤍✨</p>
 </section>
 
 <section class="policy wrap" id="politica">
